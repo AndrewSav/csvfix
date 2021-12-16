@@ -110,7 +110,7 @@ void CSVChecker :: ReadQuotedField( CSVRow & r ) {
 			}
 		}
 		else {
-			if ( mEmbedNLOK ) {
+			if ( mEmbedNLOK || Peek() != REC_SEP) {
 				field += mNext;
 			}
 			else {
