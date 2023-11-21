@@ -16,7 +16,7 @@ ODIR = obj
 SDIR = src
 INC = -Iinc -I../alib/inc
 
-cc.gcc = g++ -std=c++0x
+cc.gcc = g++ -std=c++0x -static
 cc.clang = clang++ -std=c++11 -stdlib=libc++ 
 CC = ${cc.${CCTYPE}}
 

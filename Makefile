@@ -1,14 +1,14 @@
-ifndef COMSPEC
+ifndef ComSpec
 	CLEAN =	(cd alib; $(MAKE) clean) && (cd csvfix; $(MAKE) clean)
 else
-	CLEAN = cmd.exe /c "clean.cmd"
+	CLEAN = pwsh.exe -c "./clean.ps1"
 endif
 
 default:
 	@echo "use 'make win', 'make lin' or 'make mac'"
 
 win:
-	cmd.exe /c "mkdirs.cmd"
+	pwsh.exe -c "./mkdirs.ps1"
 	cd alib && $(MAKE) win
 	cd csvfix && $(MAKE) win
 

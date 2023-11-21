@@ -4,81 +4,45 @@ on:
   push:
     tags:
     - '*'
+  workflow_dispatch:
 jobs:
   build_linux:
-    needs: build_win
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: "Build"
       run: make lin
     - name: "Create artifact"
       run: |
-        tar -C ./csvfix/bin -czvf csvfix-${{ needs.build_win.outputs.tag }}-linux.tar.gz csvfix
+        tar -C ./csvfix/bin -czvf csvfix-${{ github.ref_name }}-linux.tar.gz csvfix
     - name: "Upload linux artifact"
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ needs.build_win.outputs.upload_url }}
-        asset_path: ./csvfix-${{ needs.build_win.outputs.tag }}-linux.tar.gz
-        asset_name: csvfix-${{ needs.build_win.outputs.tag }}-linux.tar.gz
-        asset_content_type: application/gzip
+        files: csvfix-${{ github.ref_name }}-linux.tar.gz
   build_mac:
-    needs: build_win
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: "Build"
       run: make mac
     - name: "Create artifact"
       run: |
-        zip -rllj csvfix-${{ needs.build_win.outputs.tag }}-osx.zip ./csvfix/bin/csvfix
+        zip -rllj csvfix-${{ github.ref_name }}-osx.zip ./csvfix/bin/csvfix
     - name: "Upload mac artifact"
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ needs.build_win.outputs.upload_url }}
-        asset_path: ./csvfix-${{ needs.build_win.outputs.tag }}-osx.zip
-        asset_name: csvfix-${{ needs.build_win.outputs.tag }}-osx.zip
-        asset_content_type: application/zip
+        files: csvfix-${{ github.ref_name }}-osx.zip
   build_win:
     runs-on: windows-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      tag: ${{ steps.get_tag.outputs.TAG }}
     steps:
-    - name: "Get the tag"
-      shell: powershell
-      id: get_tag
-      run: |
-        "::set-output name=TAG::$($env:GITHUB_REF.replace('refs/tags/',''))"
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: "Build"
       run: make win
     - name: "Create release archive"
       shell: powershell
       run: |
-        7z a "csvfix-$env:TAG-win.zip" .\csvfix\bin\csvfix.exe
-      env:
-        TAG: ${{ steps.get_tag.outputs.TAG }}
-    - name: "Create Release"
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        tag_name: ${{ steps.get_tag.outputs.TAG }}
-        release_name: Release ${{ steps.get_tag.outputs.TAG }}
-        draft: false
-        prerelease: false
+        7z a "csvfix-${{ github.ref_name }}-win.zip" .\csvfix\bin\csvfix.exe
     - name: "Upload win artifact"
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      uses: softprops/action-gh-release@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./csvfix-${{ steps.get_tag.outputs.TAG }}-win.zip
-        asset_name: csvfix-${{ steps.get_tag.outputs.TAG }}-win.zip
-        asset_content_type: application/zip
+        files: csvfix-${{ github.ref_name }}-win.zip
